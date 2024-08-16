@@ -1,7 +1,7 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { clerkClient, WebhookEvent } from "@clerk/nextjs/server";
-import { createUser } from "@/lib/actions/user.actions";
+import { createUser, deleteUser, updateUser } from "@/lib/actions/user.actions";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -78,8 +78,37 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      message: "User creation in MongoDb user's table is succesfull.",
+      message: "New User successfully created in MongoDB.",
       user: newUser,
+    });
+  }
+
+  if (eventType === "user.updated") {
+    const { id, image_url, first_name, last_name, username } = evt.data;
+
+    const user = {
+      username: username!,
+      firstName: first_name!,
+      lastName: last_name!,
+      photo: image_url,
+    };
+
+    const updatedUser = await updateUser(id, user);
+
+    return NextResponse.json({
+      message: "Existing User successfully updated in MongoDB.",
+      user: updatedUser,
+    });
+  }
+
+  if (eventType === "user.deleted") {
+    const { id } = evt.data;
+
+    const deletedUser = await deleteUser(id!);
+
+    return NextResponse.json({
+      message: "Existing User successfully deleted in MongoDB.",
+      user: deletedUser,
     });
   }
 
