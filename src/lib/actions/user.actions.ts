@@ -1,4 +1,5 @@
-import { use } from "react";
+"use server";
+
 import User from "../database/models/user.model";
 import { connectToDatabase } from "../database/mongoose";
 import { handleError } from "../utils";
