@@ -20,6 +20,8 @@ import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useState, useTransition } from "react";
 import MediaUploader from "./MediaUploader";
+import TransformedImage from "./TransformedImage";
+import { Eraser, Save } from "lucide-react";
 
 type TransformationFormProps = {
   action: "Add" | "Update";
@@ -231,6 +233,7 @@ const TransformationForm = ({
             className="flex size-full flex-col"
             render={({ field }) => (
               <MediaUploader
+                image={image}
                 onValueChange={field.onChange}
                 setImage={setImage}
                 publicId={field.value}
@@ -238,6 +241,8 @@ const TransformationForm = ({
               />
             )}
           />
+
+          <TransformedImage />
         </div>
         <div className="flex flex-col gap-4">
           <Button
@@ -246,14 +251,16 @@ const TransformationForm = ({
             disabled={isTransforming || newTransformaton === null}
             onClick={onTransformationHandler}
           >
+            <Eraser className="w-4 h-4 mr-2" />
             {isTransforming ? "Transforming..." : "Apply Transformation"}
           </Button>
 
           <Button
             type="submit"
-            className="submit-button capitalize"
+            className="submit-button capitalize  bg-emerald-600 hover:bg-emerald-700 text-white"
             disabled={isSubmitting}
           >
+            <Save className="w-4 h-4 mr-2" />
             {isSubmitting ? "Saving..." : "Save Image"}
           </Button>
         </div>
