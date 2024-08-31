@@ -90,7 +90,7 @@ declare type CreateTransactionParams = {
 
 declare type TransformationTypeKey =
   | "restore"
-  | "fill"
+  | "fillBackground"
   | "remove"
   | "recolor"
   | "removeBackground";

@@ -6,17 +6,10 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import React, { use } from "react";
 
-declare type TransformationTypeKey =
-  | "restore"
-  | "fill"
-  | "remove"
-  | "recolor"
-  | "removeBackground";
-
 const AddTransformationsTypePage = async ({
   params: { type },
 }: SearchParamProps) => {
-  const transformation = transformationTypes[type];
+  const transformationObject = transformationTypes[type];
 
   const { userId } = auth();
 
@@ -28,14 +21,17 @@ const AddTransformationsTypePage = async ({
 
   return (
     <>
-      <Header title={transformation.title} subtitle={transformation.subTitle} />
+      <Header
+        title={transformationObject.title}
+        subtitle={transformationObject.subTitle}
+      />
 
       <section className="mt-10">
         <TransformationForm
           data={null}
           action="Add"
           userId={user._id}
-          type={transformation.type as TransformationTypeKey}
+          type={transformationObject.type as TransformationTypeKey}
           creditBalance={user.creditBalance}
           config={null}
         />

@@ -1,48 +1,49 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { CldImage, CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
-import { dataUrl, getImageSize } from "@/lib/utils";
+import { dataUrl } from "@/lib/utils";
 import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "../ui/button";
-import { Upload, Image as ImageIcon } from "lucide-react";
 
 type MediaUploaderProps = {
   onValueChange: (value: string) => void;
-  setImage: React.Dispatch<any>;
+  setOriginalImage: React.Dispatch<any>;
   publicId: string;
   type: string;
-  image: any;
+  originalImage: any;
 };
 
 const MediaUploader = ({
   onValueChange,
-  setImage,
+  setOriginalImage,
   publicId,
   type,
-  image,
+  originalImage,
 }: MediaUploaderProps) => {
   const { toast } = useToast();
 
+  const [loaderDimensions, setLoaderDimensions] = useState({
+    width: 458,
+    height: 300,
+  });
+
   const onUploadSucceshandler = (result: any) => {
-    setImage((prevState: any) => ({
+    const { public_id, width, height, secure_url } = result.info;
+
+    setLoaderDimensions({ width, height });
+
+    setOriginalImage((prevState: any) => ({
       ...prevState,
-      publicId: result.info.public_id,
-      width: result.info.width,
-      height: result.info.height,
-      secureUrl: result.info.secure_url,
+      publicId: public_id,
+      width: width,
+      height: height,
+      secureUrl: secure_url,
     }));
 
-    onValueChange(result.info.public_id);
+    onValueChange(public_id);
 
     toast({
       title: "Image uploaded successfully",
@@ -60,6 +61,10 @@ const MediaUploader = ({
       className: "error-toast",
     });
   };
+
+  useEffect(() => {
+    loaderDimensions;
+  }, [loaderDimensions]);
 
   return (
     <CldUploadWidget
@@ -80,9 +85,7 @@ const MediaUploader = ({
               <CardTitle className=" text-dark-600">Original</CardTitle>
             </CardHeader>
             <CardContent
-              className={`p-6 pt-0 flex flex-col h-[${
-                image ? getImageSize(type, image, "height") : 300
-              }px]`}
+              className={`p-6 pt-0 flex flex-col h-[${loaderDimensions.height}px]`}
             >
               <div className="flex-grow flex items-center justify-center mb-4 bg-muted rounded-md overflow-hidden">
                 {publicId && (
@@ -90,8 +93,8 @@ const MediaUploader = ({
                     key={publicId} // Add key prop to force re-render
                     src={publicId}
                     alt="image"
-                    width={getImageSize(type, image, "width")}
-                    height={getImageSize(type, image, "height")}
+                    width={loaderDimensions.width}
+                    height={loaderDimensions.height}
                     sizes={"(max-width: 767px) 100vw, 50vw"}
                     placeholder={dataUrl as PlaceholderValue}
                   />
@@ -108,6 +111,7 @@ const MediaUploader = ({
               </div>
               <div>
                 <Button
+                  type="button"
                   variant="outline"
                   className="w-full"
                   onClick={() => open()}

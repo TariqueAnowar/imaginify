@@ -11,7 +11,7 @@ export const navLinks = [
   },
   {
     label: "Generative Fill",
-    route: "/transformations/add/fill",
+    route: "/transformations/add/fillBackground",
     icon: "/assets/icons/stars.svg",
   },
   {
@@ -134,8 +134,8 @@ export const transformationTypes = {
     config: { removeBackground: true },
     icon: "camera.svg",
   },
-  fill: {
-    type: "fill",
+  fillBackground: {
+    type: "fillBackground",
     title: "Generative Fill",
     subTitle: "Enhance an image's dimensions using AI outpainting",
     config: { fillBackground: true },
@@ -168,20 +168,37 @@ export const aspectRatioOptions = {
     width: 1000,
     height: 1000,
   },
-  "3:4": {
-    aspectRatio: "3:4",
-    label: "Standard Portrait (3:4)",
+  "4:5": {
+    aspectRatio: "4:5",
+    label: "Portrait (4:5)",
     width: 1000,
-    height: 1334,
+    height: 1250,
+  },
+  "3:2": {
+    aspectRatio: "3:2",
+    label: "Classic Photo (3:2)",
+    width: 1500,
+    height: 1000,
+  },
+  "5:4": {
+    aspectRatio: "5:4",
+    label: "Large Format (5:4)",
+    width: 1250,
+    height: 1000,
+  },
+  "16:9": {
+    aspectRatio: "16:9",
+    label: "Widescreen Landscape (16:9)",
+    width: 1600,
+    height: 900,
   },
   "9:16": {
     aspectRatio: "9:16",
-    label: "Phone Portrait (9:16)",
-    width: 1000,
-    height: 1778,
+    label: "Vertical (9:16)",
+    width: 900,
+    height: 1600,
   },
 };
-
 export const defaultValues = {
   title: "",
   aspectRatio: "",
