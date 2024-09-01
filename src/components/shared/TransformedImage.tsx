@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { CldImage } from "next-cloudinary";
-import { dataUrl, getImageSize } from "@/lib/utils";
+import { dataUrl } from "@/lib/utils";
 import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
+import Image from "next/image";
+import { Button } from "../ui/button";
 
 type TransformedImageProps = {
   previewImage: any;
@@ -17,79 +19,99 @@ const TransformedImage = ({
   setIsSubmitting,
   hasDownload = false,
 }: TransformedImageProps) => {
-  const [previousPreviewImage, setPreviousPreviewImage] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Create a stable key based on all relevant properties
+  const imageKey = previewImage
+    ? `${previewImage.publicId}-${previewImage.width}-${previewImage.height}-${transformationConfig?.recolor?.to}-${transformationConfig?.recolor?.prompt}`
+    : "";
 
   useEffect(() => {
-    if (previousPreviewImage) {
-      const isSame = deepEqual(previousPreviewImage, previewImage);
-
-      if (isSame && setIsSubmitting) {
-        setIsSubmitting(false);
-      }
-      //console.log("Are the previewImage objects the same?", isSame);
+    if (previewImage && transformationConfig) {
+      setIsLoading(true);
     }
-    setPreviousPreviewImage(previewImage);
-  }, [previewImage]);
+  }, [previewImage, transformationConfig]);
 
-  const deepEqual = (obj1: any, obj2: any) => {
-    if (obj1 === obj2) return true;
-
-    if (
-      typeof obj1 !== "object" ||
-      obj1 === null ||
-      typeof obj2 !== "object" ||
-      obj2 === null
-    ) {
-      return false;
-    }
-
-    const keys1 = Object.keys(obj1);
-    const keys2 = Object.keys(obj2);
-
-    if (keys1.length !== keys2.length) return false;
-
-    for (let key of keys1) {
-      if (!keys2.includes(key) || !deepEqual(obj1[key], obj2[key])) {
-        return false;
-      }
-    }
-
-    return true;
+  const handleImageLoad = () => {
+    setIsLoading(false);
+    setIsSubmitting && setIsSubmitting(false);
   };
+
+  const handleImageError = () => {
+    setIsLoading(false);
+  };
+
+  // Guard clauses to ensure props are not null or undefined
+  if (!previewImage || !transformationConfig) {
+    return (
+      <Card className="overflow-hidden">
+        <CardHeader>
+          <CardTitle className="text-dark-600">Preview</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 h-[82%]">
+          <div className="w-full h-full bg-muted rounded-md flex items-center justify-center overflow-hidden">
+            <p className="text-muted-foreground">
+              Transformed image will appear here
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle className="text-dark-600">Preview</CardTitle>
       </CardHeader>
-      <CardContent className="p-6 pt-0 h-[82%]">
-        <div className="w-full h-full bg-muted rounded-md flex items-center justify-center overflow-hidden">
+      <CardContent className="p-6 pt-0 h-[83%]">
+        <div className="w-full h-full mb-4 bg-muted rounded-md flex items-center justify-center overflow-hidden">
           <div className="text-muted-foreground">
-            {previewImage?.publicId && transformationConfig ? (
-              <CldImage
-                key={
-                  previewImage.publicId |
-                  previewImage.width |
-                  previewImage.height
-                } // Add key prop to force re-render
-                alt={previewImage.title}
-                src={previewImage.publicId}
-                width={previewImage.width}
-                height={previewImage.height}
-                sizes={"(max-width: 767px) 100vw, 50vw"}
-                placeholder={dataUrl as PlaceholderValue}
-                onLoad={() => {
-                  setIsSubmitting && setIsSubmitting(false);
-                }}
-                onError={() => {}}
-                {...transformationConfig}
-              />
-            ) : (
-              <p className="text-muted-foreground">
-                Transformed image will appear here
-              </p>
-            )}
+            <CldImage
+              key={imageKey} // Add key prop to force re-render
+              alt={previewImage.title || "Transformed Image"}
+              src={previewImage.publicId}
+              width={previewImage.width}
+              height={previewImage.height}
+              sizes={"(max-width: 767px) 100vw, 50vw"}
+              placeholder={dataUrl as PlaceholderValue}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+              {...transformationConfig}
+            />
           </div>
+        </div>
+        <div className="flex flex-row gap-6">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={isLoading}
+          >
+            <Image
+              src="/assets/icons/download.svg"
+              alt="Download Image"
+              width={24}
+              height={24}
+              className="w-4 h-4 mr-2"
+            />
+            Download
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={isLoading}
+          >
+            <Image
+              src="/assets/icons/save.svg"
+              alt="Save Image"
+              width={24}
+              height={24}
+              className="w-4 h-4 mr-2"
+            />
+            Save
+          </Button>
         </div>
       </CardContent>
     </Card>
