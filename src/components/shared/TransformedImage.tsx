@@ -48,7 +48,7 @@ const TransformedImage = ({
         <CardHeader>
           <CardTitle className="text-dark-600">Preview</CardTitle>
         </CardHeader>
-        <CardContent className="p-6 pt-0 h-[82%]">
+        <CardContent className="p-6 pt-0 h-[300px]">
           <div className="w-full h-full bg-muted rounded-md flex items-center justify-center overflow-hidden">
             <p className="text-muted-foreground">
               Transformed image will appear here
@@ -60,11 +60,11 @@ const TransformedImage = ({
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden ">
       <CardHeader>
         <CardTitle className="text-dark-600">Preview</CardTitle>
       </CardHeader>
-      <CardContent className="p-6 pt-0 h-[83%]">
+      <CardContent className="p-6 pt-0 h-auto">
         <div className="w-full h-full mb-4 bg-muted rounded-md flex items-center justify-center overflow-hidden">
           <div className="text-muted-foreground">
             <CldImage
