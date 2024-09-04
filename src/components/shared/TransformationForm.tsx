@@ -16,7 +16,12 @@ import { Input } from "@/components/ui/input";
 import { IImage } from "@/lib/database/models/image.model";
 import CustomField from "./CustomField";
 import { aspectRatioOptions, creditFee, transformationTypes } from "@/constant";
-import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils";
+import {
+  AspectRatioKey,
+  debounce,
+  deepMergeObjects,
+  deepEqual,
+} from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useEffect, useState, useTransition } from "react";
 import MediaUploader from "./MediaUploader";
@@ -76,15 +81,14 @@ const TransformationForm = ({
   creditBalance,
 }: TransformationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isTransforming, setIsTransforming] = useState(false);
-  const [newTransformaton, setNewTransformation] =
-    useState<Transformations | null>(null);
   const [originalImage, setOriginalImage] = useState(data);
   const [previewImage, setPreviewImage] = useState<IImage | null>(null);
   const [transformationConfig, setTransformationConfig] = useState(config);
   const [isPending, startTransition] = useTransition();
 
-  const transformationObject = transformationTypes[type];
+  const [previousValues, setPreviousValues] = useState<z.infer<
+    typeof formSchema
+  > | null>(null);
 
   const initialValues =
     data && action === "Update"
@@ -94,7 +98,7 @@ const TransformationForm = ({
           color: data?.color,
           prompt: data?.prompt,
           publicId: data?.publicId,
-          type: transformationObject.type,
+          type: type,
         }
       : {
           title: "",
@@ -102,7 +106,7 @@ const TransformationForm = ({
           color: "",
           prompt: "",
           publicId: "",
-          type: transformationObject.type,
+          type: type,
         };
 
   // 1. Define your form.
@@ -113,6 +117,15 @@ const TransformationForm = ({
 
   // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof formSchema>) {
+    //console.log("TransformationForm Form onSubmit values:", values);
+
+    const isSame = deepEqual(previousValues, values);
+
+    if (isSame) {
+      //console.log("Values are the same as previous values. Skipping...");
+      return;
+    }
+
     setIsSubmitting(true);
 
     if (values.type === "fillBackground") {
@@ -158,9 +171,7 @@ const TransformationForm = ({
           : { prompt: values.prompt, to: values.color },
     }));
 
-    console.log("TransformationForm Form values:", values);
-
-    console.log("TransformationForm previewImage:", previewImage);
+    setPreviousValues(values);
     return;
 
     // startTransition(async () => {
@@ -174,35 +185,6 @@ const TransformationForm = ({
   ) => {
     return onChangeField(value);
   };
-
-  // FIXME: Need to understand the code
-  const onInputChangeHandler = (
-    fieldName: string,
-    value: string,
-    type: string,
-    onChangeField: (value: string) => void
-  ) => {
-    debounce(() => {
-      setNewTransformation((prevState: any) => ({
-        ...prevState,
-        [type]: {
-          ...prevState?.[type],
-          [fieldName === "prompt" ? "prompt" : "to"]: value,
-        },
-      }));
-    }, 1000)();
-
-    return onChangeField(value);
-  };
-
-  useEffect(() => {
-    console.log(
-      "TransformationForm transformationConfig:",
-      transformationConfig
-    );
-  }, [transformationConfig]);
-
-  const onTransformationHandler = () => {};
 
   return (
     <Form {...form}>
@@ -228,7 +210,6 @@ const TransformationForm = ({
             className="w-full"
             render={({ field }) => (
               <Select
-                value={form.watch("aspectRatio")}
                 onValueChange={(value) =>
                   onSelectFieldHandler(value, field.onChange)
                 }
@@ -258,19 +239,11 @@ const TransformationForm = ({
             className="w-full"
             render={({ field }) => (
               <Input
+                {...field}
                 placeholder={
                   type === "remove" ? "Object to Remove" : "Object to Recolor"
                 }
-                value={field.value}
-                className="input-field"
-                onChange={(e) =>
-                  onInputChangeHandler(
-                    "prompt",
-                    e.target.value,
-                    type,
-                    field.onChange
-                  )
-                }
+                className=""
               />
             )}
           />
@@ -283,19 +256,7 @@ const TransformationForm = ({
             //formLabel="Replacement Color"
             className="w-full"
             render={({ field }) => (
-              <Input
-                placeholder="Replacement Color"
-                value={field.value}
-                className="input-field"
-                onChange={(e) =>
-                  onInputChangeHandler(
-                    "color",
-                    e.target.value,
-                    "recolor",
-                    field.onChange
-                  )
-                }
-              />
+              <Input {...field} placeholder="Replacement Color" className="" />
             )}
           />
         )}

@@ -128,53 +128,6 @@ const MediaUploader = ({
               </div>
             </CardContent>
           </Card>
-          {/* {publicId ? (
-            <>
-              <CldImage
-                src={publicId}
-                alt="image"
-                width={getImageSize(type, image, "width")}
-                height={getImageSize(type, image, "height")}
-                sizes={"(max-width: 767px) 100vw, 50vw"}
-                placeholder={dataUrl as PlaceholderValue}
-              />
-            </>
-          ) : (
-            <Card className="overflow-hidden">
-              <CardHeader>
-                <CardTitle className="h3-bold text-dark-600">
-                  Original
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6 flex flex-col h-[300px]">
-                <div className="flex-grow flex items-center justify-center mb-4 bg-muted rounded-md overflow-hidden">
-                  <Image
-                    src="/assets/icons/image-placeholder.svg"
-                    alt="Add Image"
-                    width={24}
-                    height={24}
-                    className="w-12 h-12 text-muted-foreground opacity-50"
-                  />
-                </div>
-                <div>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => open()}
-                  >
-                    <Image
-                      src="/assets/icons/upload.svg"
-                      alt="Add Image"
-                      width={24}
-                      height={24}
-                      className="w-4 h-4 mr-2"
-                    />
-                    {publicId ? "Change Image" : "Upload Image"}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )} */}
         </div>
       )}
     </CldUploadWidget>
