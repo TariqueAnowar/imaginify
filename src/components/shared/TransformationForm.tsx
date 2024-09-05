@@ -16,12 +16,7 @@ import { Input } from "@/components/ui/input";
 import { IImage } from "@/lib/database/models/image.model";
 import CustomField from "./CustomField";
 import { aspectRatioOptions, creditFee, transformationTypes } from "@/constant";
-import {
-  AspectRatioKey,
-  debounce,
-  deepMergeObjects,
-  deepEqual,
-} from "@/lib/utils";
+import { AspectRatioKey, deepMergeObjects, deepEqual } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useEffect, useState, useTransition } from "react";
 import MediaUploader from "./MediaUploader";
@@ -134,18 +129,24 @@ const TransformationForm = ({
 
       setPreviewImage((prevState: any) => ({
         ...prevState,
+        title: values.title,
         width: imageSize.width,
         height: imageSize.height,
         aspectRatio: values.aspectRatio,
         publicId: values.publicId,
+        secureURL: originalImage?.secureURL,
+        transformationType: type,
       }));
     } else {
       setPreviewImage((prevState: any) => ({
         ...prevState,
+        title: values.title,
         width: originalImage?.width,
         height: originalImage?.height,
         aspectRatio: values.aspectRatio,
         publicId: values.publicId,
+        secureURL: originalImage?.secureURL,
+        transformationType: type,
       }));
     }
 
@@ -281,6 +282,7 @@ const TransformationForm = ({
             previewImage={previewImage}
             setIsSubmitting={setIsSubmitting}
             transformationConfig={transformationConfig}
+            userId={userId}
           />
         </div>
         <div className="flex flex-col gap-4">

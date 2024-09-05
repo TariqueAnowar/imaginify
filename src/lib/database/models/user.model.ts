@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import { model, models, Schema } from "mongoose";
+import { Document, model, models, Schema } from "mongoose";
 
 export interface IUser extends Document {
   clerkId: string;
@@ -23,5 +23,5 @@ const UserSchema = new Schema({
   creditBalance: { type: Number, default: 10 },
 });
 
-const User = models.User || model("User", UserSchema);
+const User = models?.User || model("User", UserSchema);
 export default User;

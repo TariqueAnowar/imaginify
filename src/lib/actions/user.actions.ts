@@ -21,15 +21,21 @@ export async function getUserById(userId: string) {
   try {
     await connectToDatabase();
 
-    const user = await User.findOne({ clerkId: userId });
+    console.log("Searching for user with clerkId:", userId);
+    const user = await User.findOne({
+      clerkId: "user_2lcyRzOLE11jq60yWv5S3KdwTAx",
+    });
 
     if (!user) {
-      throw new Error("User not found");
+      console.error("User not found for clerkId:", userId);
+      return null; // Return null instead of throwing an error
     }
 
+    console.log("User found:", user);
     return JSON.parse(JSON.stringify(user));
   } catch (error) {
-    handleError(error);
+    console.error("Error in getUserById:", error);
+    throw error; // Re-throw the error to be handled by the caller
   }
 }
 

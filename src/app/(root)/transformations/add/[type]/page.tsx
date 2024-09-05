@@ -4,7 +4,7 @@ import { transformationTypes } from "@/constant";
 import { getUserById } from "@/lib/actions/user.actions";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import React, { use } from "react";
+import React from "react";
 
 const AddTransformationsTypePage = async ({
   params: { type },
@@ -16,8 +16,7 @@ const AddTransformationsTypePage = async ({
   if (!userId) {
     redirect("/sign-in");
   }
-  const user = await getUserById(userId);
-  //console.log(userId);
+  //const user = await getUserById(userId);
 
   return (
     <>
@@ -30,9 +29,9 @@ const AddTransformationsTypePage = async ({
         <TransformationForm
           data={null}
           action="Add"
-          userId={user._id}
+          userId={""}
           type={transformationObject.type as TransformationTypeKey}
-          creditBalance={user.creditBalance}
+          creditBalance={0}
           config={null}
         />
       </section>
