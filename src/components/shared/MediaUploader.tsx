@@ -40,7 +40,7 @@ const MediaUploader = ({
       publicId: public_id,
       width: width,
       height: height,
-      secureUrl: secure_url,
+      secureURL: secure_url,
     }));
 
     onValueChange(public_id);

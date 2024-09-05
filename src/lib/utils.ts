@@ -4,6 +4,7 @@ import { type ClassValue, clsx } from "clsx";
 import qs from "qs";
 import { twMerge } from "tailwind-merge";
 import { aspectRatioOptions } from "@/constant";
+import { getCldImageUrl } from "next-cloudinary";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -109,26 +110,32 @@ export const getImageSize = (
 };
 
 // DOWNLOAD IMAGE
-export const download = (url: string, filename: string) => {
-  if (!url) {
-    throw new Error("Resource URL not provided! You need to provide one");
+export const download = (publicId: string, filename: string) => {
+  const imageUrl = getCldImageUrl({
+    width: 1000,
+    height: 1000,
+    src: publicId,
+    // Add any other transformation options here if needed
+  });
+
+  if (!imageUrl) {
+    throw new Error("Failed to generate image URL");
   }
 
-  fetch(url)
+  fetch(imageUrl)
     .then((response) => response.blob())
     .then((blob) => {
       const blobURL = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = blobURL;
-
-      if (filename && filename.length)
-        a.download = `${filename.replace(" ", "_")}.png`;
+      a.download = `${filename.replace(" ", "_")}.png`;
       document.body.appendChild(a);
       a.click();
+      URL.revokeObjectURL(blobURL);
+      document.body.removeChild(a);
     })
-    .catch((error) => console.log({ error }));
+    .catch((error) => console.error("Download failed:", error));
 };
-
 // DEEP MERGE OBJECTS
 export const deepMergeObjects = (obj1: any, obj2: any) => {
   if (obj2 === null || obj2 === undefined) {
