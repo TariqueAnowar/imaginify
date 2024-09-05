@@ -118,6 +118,8 @@ export const download = (publicId: string, filename: string) => {
     // Add any other transformation options here if needed
   });
 
+  console.log("imageUrl utils.ts:" + imageUrl);
+
   if (!imageUrl) {
     throw new Error("Failed to generate image URL");
   }
