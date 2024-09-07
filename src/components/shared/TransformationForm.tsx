@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,12 +22,15 @@ import {
   debounce,
   deepMergeObjects,
   deepEqual,
+  dataUrl,
 } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useEffect, useState, useTransition } from "react";
 import MediaUploader from "./MediaUploader";
 import TransformedImage from "./TransformedImage";
 import { Eraser, Save } from "lucide-react";
+import { getCldImageUrl } from "next-cloudinary";
+import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
 
 type TransformationFormProps = {
   action: "Add" | "Update";
@@ -86,6 +90,9 @@ const TransformationForm = ({
   const [transformationConfig, setTransformationConfig] = useState(config);
   const [isPending, startTransition] = useTransition();
 
+  const [url, setUrl] = useState("");
+  const [transformationId, setTransformationId] = useState(0);
+
   const [previousValues, setPreviousValues] = useState<z.infer<
     typeof formSchema
   > | null>(null);
@@ -142,6 +149,9 @@ const TransformationForm = ({
         secureURL: originalImage?.secureURL,
         transformationType: type,
       }));
+
+      // Add this line to increment the transformation ID
+      setTransformationId((prev) => prev + 1);
     } else {
       setPreviewImage((prevState: any) => ({
         ...prevState,
@@ -156,6 +166,8 @@ const TransformationForm = ({
     }
 
     /*
+    setIsSubmitting(false);
+    
     setTransformationConfig(transformationObject.config);
 
     setTransformationConfig((prevState: any) => ({
@@ -191,6 +203,10 @@ const TransformationForm = ({
   ) => {
     return onChangeField(value);
   };
+
+  useEffect(() => {
+    console.log(url);
+  }, [url]);
 
   return (
     <Form {...form}>
@@ -282,7 +298,6 @@ const TransformationForm = ({
               />
             )}
           />
-
           <TransformedImage
             previewImage={previewImage}
             setIsSubmitting={setIsSubmitting}
@@ -291,16 +306,6 @@ const TransformationForm = ({
           />
         </div>
         <div className="flex flex-col gap-4">
-          {/* <Button
-            type="button"
-            className="submit-button capitalize"
-            disabled={isTransforming || newTransformaton === null}
-            onClick={onTransformationHandler}
-          >
-            <Save className="w-4 h-4 mr-2" />
-            {isTransforming ? "Transforming..." : "Apply Transformation"}
-          </Button> */}
-
           <Button
             type="submit"
             className="capitalize  bg-emerald-600 hover:bg-emerald-700 text-white"

@@ -2,15 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { CldImage } from "next-cloudinary";
+import { CldImage, getCldImageUrl } from "next-cloudinary";
 import { dataUrl } from "@/lib/utils";
 import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { download } from "@/lib/utils";
-import { title } from "process";
 import { addImage } from "@/lib/actions/image.actions";
-import { getUserById, updateUser } from "@/lib/actions/user.actions";
 
 type TransformedImageProps = {
   previewImage: any;
@@ -29,6 +27,7 @@ const TransformedImage = ({
 }: TransformedImageProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   // Create a stable key based on all relevant properties
   const imageKey = previewImage
@@ -51,32 +50,54 @@ const TransformedImage = ({
   };
 
   const handleDownload = () => {
-    download(previewImage.publicId, previewImage.title || "transformed_image");
+    // Get the transformed image URL
+    const transformedUrl = getCldImageUrl({
+      width: previewImage.width,
+      height: previewImage.height,
+      src: previewImage.publicId,
+      ...transformationConfig,
+    });
+
+    console.log("Transformed URL:", transformedUrl);
+    download(transformedUrl, previewImage.title || "transformed_image");
   };
 
   const handleSave = async () => {
-    try {
-      const imageData = {
-        title: previewImage.title || "Transformed Image",
-        publicId: previewImage.publicId,
-        secureURL: previewImage.secureURL,
-        width: previewImage.width,
-        height: previewImage.height,
-        aspectRatio: previewImage.aspectRatio,
-        transformationType: previewImage.transformationType,
-        config: transformationConfig,
-        prompt:
-          transformationConfig?.recolor?.prompt ||
-          transformationConfig?.remove?.prompt,
-        color: transformationConfig?.recolor?.to,
-      };
+    if (isSaved) return;
 
+    setIsSaved(true);
+
+    // Get the transformed image URL
+    const transformedUrl = getCldImageUrl({
+      width: previewImage.width,
+      height: previewImage.height,
+      src: previewImage.publicId,
+      ...transformationConfig,
+    });
+
+    const imageData = {
+      title: previewImage.title || "Transformed Image",
+      publicId: previewImage.publicId,
+      secureURL: transformedUrl,
+      width: previewImage.width,
+      height: previewImage.height,
+      aspectRatio: previewImage.aspectRatio,
+      transformationType: previewImage.transformationType,
+      config: transformationConfig,
+      prompt:
+        transformationConfig?.recolor?.prompt ||
+        transformationConfig?.remove?.prompt,
+      color: transformationConfig?.recolor?.to,
+    };
+
+    try {
       const newImage = await addImage({
         image: imageData,
         userId: userId,
       });
     } catch (error) {
-      console.error("Failed to save image:", error);
+      console.error("Error saving image:", error);
+      setIsSaved(false);
     }
   };
 
@@ -119,6 +140,7 @@ const TransformedImage = ({
               className="rounded-md"
               {...transformationConfig}
             />
+
             <Button
               className="absolute top-2 right-2 z-10 bg-white text-black hover:bg-gray-200"
               type="button"
@@ -190,7 +212,7 @@ const TransformedImage = ({
             type="button"
             variant="outline"
             className="w-full"
-            disabled={isLoading}
+            disabled={isLoading || isSaved}
             onClick={handleSave}
           >
             <Image
