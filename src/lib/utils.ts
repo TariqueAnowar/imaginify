@@ -110,19 +110,8 @@ export const getImageSize = (
 };
 
 // DOWNLOAD IMAGE
-export const download = (publicId: string, filename: string) => {
-  const imageUrl = getCldImageUrl({
-    width: 1000,
-    height: 1000,
-    src: publicId,
-    // Add any other transformation options here if needed
-  });
-
-  if (!imageUrl) {
-    throw new Error("Failed to generate image URL");
-  }
-
-  fetch(imageUrl)
+export const download = (newImageUrl: string, filename: string) => {
+  fetch(newImageUrl)
     .then((response) => response.blob())
     .then((blob) => {
       const blobURL = URL.createObjectURL(blob);
@@ -136,6 +125,7 @@ export const download = (publicId: string, filename: string) => {
     })
     .catch((error) => console.error("Download failed:", error));
 };
+
 // DEEP MERGE OBJECTS
 export const deepMergeObjects = (obj1: any, obj2: any) => {
   if (obj2 === null || obj2 === undefined) {
